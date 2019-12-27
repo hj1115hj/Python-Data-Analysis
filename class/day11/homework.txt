@@ -1,0 +1,70 @@
+import numpy as np
+
+import pandas as pd
+
+import seaborn as sns
+
+ 
+
+import matplotlib.pyplot as plt
+
+%matplotlib inline 
+
+ 
+
+from matplotlib import font_manager, rc
+
+font_name = font_manager.FontProperties(fname="c:/Windows/Fonts/malgun.ttf").get_name()
+
+rc('font', family=font_name)
+
+--
+
+df = pd.read_excel('./data/2019년 11월  교통카드 통계자료.xls', 
+
+                  sheet_name='지하철 시간대별 이용현황', thousands = ',', encoding="UTF-8")
+
+df.head()
+
+ 
+
+1. 지하철 시간대별 이용 현황 데이터 시각화
+df_sts=df.iloc[1:,3:52]
+df_sts.set_index('지하철역', inplace=True)  #지하철역 컬럼을 인덱스로 지정
+ 
+df_sts=df_sts.iloc[:,::2].astype(int)  #승차데이터만 불러오기
+df_sts.columns.names=['시간대']
+df_sts.head()
+ 
+--
+df_sts_T= df_sts.T 
+df_sts_T['시간별 합계']=df_sts_T.sum(axis=1)
+df_sts_T.head()
+ 
+--
+df_time = df_sts_T['시간별 합계']
+df_time.head()
+ 
+--
+plt.style.use('ggplot') 
+df_time.plot(kind='bar', figsize=(15, 5))
+plt.show()
+ 
+2. 출근 시간대 (7시 ~9시) 가장 많이 타고 내리는 역 찾기
+df_work=df.iloc[1:,3:52]
+df_work.set_index('지하철역', inplace=True)
+ 
+df_work = df_work.iloc[:,6:10]
+df_work.head()
+ 
+--
+df_work['출근시간대 승하차']=df_work.sum(axis=1)
+df_work_max = df_work['출근시간대 승하차'].idxmax()
+print('출근시간대 승하차가 가장 많은 역은 %s입니다.'%(df_work_max))
+ 
+ 
+3. 밤 11시에 가장 많이 타는 역 찾기
+df_11 = df_sts['23:00:00~23:59:59'].idxmax()
+print('밤 11시에 가장 많이 타는 역은 %s입니다.'%(df_11))
+ 
+ 
